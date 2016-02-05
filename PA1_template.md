@@ -1,12 +1,8 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 ### Loading and pre-processing the data
 
-```{r, echo=TRUE}
+
+```r
         # load libraries
         library(lattice)
 
@@ -20,17 +16,33 @@ output:
   
 ### What is the mean total number of steps taken per day?
 
-```{r, echo=TRUE}
+
+```r
         # Compute number of steps taken per day
         daily <- with(data, tapply(steps, date, sum, na.rm=TRUE))
         daily <- data.frame(date=names(daily), steps = daily) # convert to data frame
         
         # Plot histogram of steps-per-day
         hist(daily$steps, breaks=10, col="light blue", main="Histogram - Daily Steps", xlab="")
-        
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)
+
+```r
         # Report the mean/median steps per day
         mean(daily$steps, na.rm=TRUE)
+```
+
+```
+## [1] 9354.23
+```
+
+```r
         median(daily$steps, na.rm=TRUE)
+```
+
+```
+## [1] 10395
 ```
 
 * *The subject takes an average of 9,354 steps-per-day*
@@ -38,8 +50,8 @@ output:
   
 ### What is the average daily activity pattern?
 
-```{r, echo=TRUE}
-        
+
+```r
         # Compute average number of steps, by 5-minute interval
         interval <- with(data, tapply(steps, as.factor(interval), mean, na.rm=TRUE))
         interval <- data.frame(interval=names(interval), avg.steps=interval) # convert to data frame
@@ -48,25 +60,38 @@ output:
         # Plot average steps taken over 5-minute intervals throughout the day
         with(interval, plot(interval, avg.steps, type="l", col="blue", 
                 main="Average steps taken throughout the day", xlab="5-minute interval"))
-        
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)
+
+```r
         # Report interval with max steps per day
         interval[interval$avg.steps==max(interval$avg.steps),1]
+```
+
+```
+## [1] 835
 ```
 
 * *On average, the subject takes the most steps between 8:30-8:35 AM*  
 
 ### Imputing Missing Values
 
-```{r, echo=TRUE}
+
+```r
         # Compute number of missing obs
         sum(is.na(data$steps))
+```
+
+```
+## [1] 2304
 ```
 
 * *There are a total of 2,304 missing observations in the dataset.*
 * We will impute these missing values using the mean for that 5-minute interval.
 
-```{r, echo=TRUE}
 
+```r
         # Impute missings using mean of that 5-minute interval
         dataImputed <- merge(x=data, y=interval, by="interval", all.x=TRUE) # join with interval means
         # Replace NAs with mean
@@ -82,11 +107,25 @@ output:
         dailyImputed <- with(dataImputed, tapply(steps, date, sum, na.rm=TRUE))
         dailyImputed <- data.frame(date=names(dailyImputed), steps = dailyImputed)
         hist(dailyImputed$steps, breaks=10, col="light blue", main="Histogram - Daily Steps (with imputed data)", xlab="")
-        
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)
+
+```r
         # Report mean/median steps-per-day (with imputed data)
         mean(dailyImputed$steps)
-        median(dailyImputed$steps)
+```
 
+```
+## [1] 10766.19
+```
+
+```r
+        median(dailyImputed$steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 * *When replacing missing values with the mean of that 5-minute interval, the average number of steps-per-day increases from 9,354 to 10,766. 
@@ -95,8 +134,8 @@ output:
 
 ### Are there differences in activity patterns between weekdays and weekends?
 
-```{r, echo=TRUE}
-        
+
+```r
         # create factor variable for weekday/weekend
         dataImputed$date.d <- as.Date(as.character(data$date), "%Y-%m-%d") # convert to date class
         weekend <- dataImputed[weekdays(dataImputed$date.d) %in% c("Saturday","Sunday"),] # subset for weekends
@@ -126,4 +165,6 @@ output:
         # Plot average steps-per-interval (weekdays v. weekend)
         xyplot(steps ~ interval | day, data=dailyType, type="l", main="Average steps by 5-minute Interval")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)
 
